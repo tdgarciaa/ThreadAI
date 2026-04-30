@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { AuthProvider } from "@/components/ui/AuthProvider";
+import { Providers } from "@/lib/providers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -49,7 +51,8 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <Providers>{children}</Providers>
+            <Toaster closeButton position="top-center" />
           </ThemeProvider>
         </AuthProvider>
       </body>

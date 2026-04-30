@@ -30,12 +30,17 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { workspaceSchema } from "@/schemas/workspace";
+import { workspaceSchema, WorkspaceSchemaType } from "@/schemas/workspace";
+import { useMutation } from "@tanstack/react-query";
+import { orpc } from "@/lib/orpc";
+import { useQueryClient } from "@tanstack/react-query";
+import { isDefinedError } from "@orpc/client";
 
 type FormValues = z.infer<typeof workspaceSchema>;
 
 export function CreateWorkspace() {
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(workspaceSchema),
@@ -44,24 +49,35 @@ export function CreateWorkspace() {
     },
   });
 
-  function onSubmit(data: FormValues) {
-    toast("You submitted the following values:", {
-      description: (
-        <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-      position: "bottom-right",
-      classNames: {
-        content: "flex flex-col gap-2",
-      },
-      style: {
-        "--border-radius": "calc(var(--radius) + 4px)",
-      } as CSSProperties,
-    });
+  const createWorkspaceMutation = useMutation(
+    orpc.workspace.create.mutationOptions({
+      onSuccess: (newWorkspace) => {
+        toast.success(
+          `Workspace ${newWorkspace.workspaceName} created succesfully`,
+        );
 
-    setOpen(false);
-    form.reset();
+        queryClient.invalidateQueries({
+          queryKey: orpc.workspace.list.queryKey(),
+        });
+
+        form.reset();
+        setOpen(false);
+      },
+      onError: (error) => {
+        if (isDefinedError(error)) {
+          if (error.code === "RATE_LIMITED") {
+            toast.error(error.message);
+          }
+          toast.error(error.message);
+          return;
+        }
+        toast.error("Failed to create workspace, try again later");
+      },
+    }),
+  );
+
+  function onSubmit(values: WorkspaceSchemaType) {
+    createWorkspaceMutation.mutate(values);
   }
 
   return (
@@ -117,8 +133,14 @@ export function CreateWorkspace() {
               )}
             />
 
-            <Button type="submit" className="w-full">
-              Create workspace
+            <Button
+              disabled={createWorkspaceMutation.isPending}
+              type="submit"
+              className="w-full"
+            >
+              {createWorkspaceMutation.isPending
+                ? "Creating ..."
+                : "Create workspace"}
             </Button>
           </FieldGroup>
         </form>

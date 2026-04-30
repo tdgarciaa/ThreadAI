@@ -1,3 +1,4 @@
+"use client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +14,15 @@ import { AvatarImage, Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CreditCardIcon, LogOutIcon, UserIcon } from "lucide-react";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs";
 import { PortalLink } from "@kinde-oss/kinde-auth-nextjs/components";
+import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
+import { orpc } from "@/lib/orpc";
+import { getAvatar } from "@/lib/get-avatar";
 
 export function UserNav() {
-  const user = {
-    picture: "https://avatars.githubusercontent.com/u/159808993?v=4",
-    given_name: "twan gaznate",
-  };
+  const {
+    data: { user },
+  } = useSuspenseQuery(orpc.workspace.list.queryOptions());
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,12 +33,12 @@ export function UserNav() {
         >
           <Avatar>
             <AvatarImage
-              src={user.picture}
+              src={getAvatar(user.picture, user.email!)}
               alt="User image"
               className="object-cover"
             />
             <AvatarFallback>
-              {user.given_name.slice(0, 2).toLocaleUpperCase()}
+              {user.given_name?.slice(0, 2).toLocaleUpperCase()}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -48,12 +52,12 @@ export function UserNav() {
         <DropdownMenuLabel className="font-normal flex items-center gap-2 px-1 py-1.5 text-left text-sm ">
           <Avatar className="relative rounded-lg size-8">
             <AvatarImage
-              src={user.picture}
+              src={getAvatar(user.picture, user.email!)}
               alt="User image"
               className="object-cover"
             />
             <AvatarFallback>
-              {user.given_name.slice(0, 2).toLocaleUpperCase()}
+              {user.given_name?.slice(0, 2).toLocaleUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
