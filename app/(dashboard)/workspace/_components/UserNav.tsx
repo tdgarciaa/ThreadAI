@@ -17,6 +17,7 @@ import { PortalLink } from "@kinde-oss/kinde-auth-nextjs/components";
 import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { orpc } from "@/lib/orpc";
 import { getAvatar } from "@/lib/get-avatar";
+import Image from "next/image";
 
 export function UserNav() {
   const {
@@ -32,9 +33,10 @@ export function UserNav() {
           className="size-12 rounded-xl hover:rounded-lg trasition-all duration-200 bg-background/50 border-border/50 hover:bg-accent hover:text-accent-foreground"
         >
           <Avatar>
-            <AvatarImage
+            <Image
               src={getAvatar(user.picture, user.email!)}
-              alt="User image"
+              alt="User Picture"
+              fill
               className="object-cover"
             />
             <AvatarFallback>
