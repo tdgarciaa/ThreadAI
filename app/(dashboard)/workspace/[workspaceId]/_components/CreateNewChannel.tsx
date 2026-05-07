@@ -32,12 +32,16 @@ import { orpc } from "@/lib/orpc";
 import { toast } from "sonner";
 import { isDefinedError } from "@orpc/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
 type FormValues = z.infer<typeof ChannelNameSchema>;
 
 export function CreateNewChannel() {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const { workspaceId } = useParams<{ workspaceId: string }>();
   const form = useForm<FormValues>({
     resolver: zodResolver(ChannelNameSchema),
     defaultValues: {
@@ -55,6 +59,7 @@ export function CreateNewChannel() {
         });
         form.reset();
         setOpen(false);
+        router.push(`/workspace/${workspaceId}/channel/${newChannel.id}`);
       },
       onError: (error) => {
         if (isDefinedError(error)) {

@@ -56,7 +56,7 @@ async function ChannelListLayout({ children }: { children: ReactNode }) {
           </Collapsible>
         </div>
       </div>
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="min-w-0 flex flex-1">{children}</div>
     </div>
   );
 }
