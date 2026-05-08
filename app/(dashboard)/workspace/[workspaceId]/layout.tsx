@@ -18,43 +18,39 @@ async function ChannelListLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-full flex-1">
       <div className="flex h-full w-80 flex-col bg-secondary border-r border-border">
-        {/*Header */}
-        <div className="flex items-center px-4 h-14 border-b border-border">
-          <HydrateClient client={queryClient}>
+        <HydrateClient client={queryClient}>
+          {/*Header */}
+          <div className="flex items-center px-4 h-14 border-b border-border">
             <WorkspaceHeader />
-          </HydrateClient>
-        </div>
-        <div className="px-4  py-4">
-          <CreateNewChannel />
-        </div>
-        {/*Channel div */}
-        <div className="px-4 py-2">
-          <Collapsible defaultOpen>
-            <CollapsibleTrigger className="flex w-full items-center justify-between px-2 py-1 text-sm font-medium text-muted-foreground hover:text-accent-foreground">
-              Main
-              <ChevronDown className="size-4 transition-transform duration-200" />
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <HydrateClient client={queryClient}>
+          </div>
+          <div className="px-4  py-4">
+            <CreateNewChannel />
+          </div>
+          {/*Channel div */}
+          <div className="px-4 py-2">
+            <Collapsible defaultOpen>
+              <CollapsibleTrigger className="flex w-full items-center justify-between px-2 py-1 text-sm font-medium text-muted-foreground hover:text-accent-foreground">
+                Main
+                <ChevronDown className="size-4 transition-transform duration-200" />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
                 <ChannelList />
-              </HydrateClient>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
-        {/*Members div */}
-        <div className="mt-auto px-4 py-2 border-t border-border">
-          <Collapsible defaultOpen>
-            <CollapsibleTrigger className="flex w-full items-center justify-between px-2 py-1 text-sm font-medium text-muted-foreground hover:text-accent-foreground [&[data-state=open]>svg]:rotate-180">
-              Members
-              <ChevronUp className="size-4 transition-transform duration-200" />
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <HydrateClient client={queryClient}>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+          {/*Members div */}
+          <div className="mt-auto px-4 py-2 border-t border-border">
+            <Collapsible defaultOpen>
+              <CollapsibleTrigger className="flex w-full items-center justify-between px-2 py-1 text-sm font-medium text-muted-foreground hover:text-accent-foreground [&[data-state=open]>svg]:rotate-180">
+                Members
+                <ChevronUp className="size-4 transition-transform duration-200" />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
                 <WorkspaceMembersList />
-              </HydrateClient>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+        </HydrateClient>
       </div>
       <div className="min-w-0 flex flex-1">{children}</div>
     </div>
