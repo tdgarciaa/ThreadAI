@@ -136,7 +136,7 @@ export function MessageList() {
   return (
     <div className="relaltive h-full">
       <div
-        className="h-full overflow-y-auto px-4"
+        className="h-full overflow-y-auto px-4 flex flex-col space-y-1"
         ref={scrolledRef}
         onScroll={handleScroll}
       >

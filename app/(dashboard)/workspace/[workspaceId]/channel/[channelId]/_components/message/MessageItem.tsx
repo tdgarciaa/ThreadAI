@@ -7,7 +7,26 @@ interface iAppProps {
   message: Message;
 }
 
+function getValidImageSrc(src: string | null) {
+  if (!src || src === "none") {
+    return null;
+  }
+
+  if (src.startsWith("/")) {
+    return src;
+  }
+
+  try {
+    const url = new URL(src);
+    return url.protocol === "http:" || url.protocol === "https:" ? src : null;
+  } catch {
+    return null;
+  }
+}
+
 export function MessageItem({ message }: iAppProps) {
+  const imageSrc = getValidImageSrc(message.imageUrl);
+
   return (
     <div className="flex space-x-3 relative p-2 rounded-lg group hover:bg-muted/50">
       <Image
@@ -38,6 +57,18 @@ export function MessageItem({ message }: iAppProps) {
           className="text-sm break-words prose dark:prose-invert max-w-none mark:text-primary"
           content={message.content}
         />
+
+        {imageSrc && (
+          <div className="mt-3">
+            <Image
+              src={imageSrc}
+              alt="Image"
+              width={512}
+              height={512}
+              className="rounded-md borber border-border max-h-[320px] w-auto gap-2"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
