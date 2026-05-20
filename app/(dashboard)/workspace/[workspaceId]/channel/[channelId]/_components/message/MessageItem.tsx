@@ -2,9 +2,14 @@ import { Message } from "@/generated/prisma/client";
 import Image from "next/image";
 import { getAvatar } from "@/lib/get-avatar";
 import { SaveContent } from "@/components/rich-text-editor/SaveContent";
+import { MessageHoverToolbar } from "../toolBar";
+import { useState } from "react";
+import { EditMessage } from "../toolBar/EditMesage";
+import { flattenError } from "zod";
 
 interface iAppProps {
   message: Message;
+  currentUserId: string;
 }
 
 function getValidImageSrc(src: string | null) {
@@ -24,8 +29,9 @@ function getValidImageSrc(src: string | null) {
   }
 }
 
-export function MessageItem({ message }: iAppProps) {
+export function MessageItem({ message, currentUserId }: iAppProps) {
   const imageSrc = getValidImageSrc(message.imageUrl);
+  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <div className="flex space-x-3 relative p-2 rounded-lg group hover:bg-muted/50">
@@ -53,23 +59,38 @@ export function MessageItem({ message }: iAppProps) {
           </p>
         </div>
 
-        <SaveContent
-          className="text-sm break-words prose dark:prose-invert max-w-none mark:text-primary"
-          content={message.content}
-        />
-
-        {imageSrc && (
-          <div className="mt-3">
-            <Image
-              src={imageSrc}
-              alt="Image"
-              width={512}
-              height={512}
-              className="rounded-md borber border-border max-h-[320px] w-auto gap-2"
+        {isEditing ? (
+          <EditMessage
+            message={message}
+            onCancel={() => setIsEditing(false)}
+            onSave={() => setIsEditing(false)}
+          />
+        ) : (
+          <>
+            <SaveContent
+              className="text-sm break-words prose dark:prose-invert max-w-none mark:text-primary"
+              content={message.content}
             />
-          </div>
+
+            {imageSrc && (
+              <div className="mt-3">
+                <Image
+                  src={imageSrc}
+                  alt="Image"
+                  width={512}
+                  height={512}
+                  className="rounded-md borber border-border max-h-[320px] w-auto gap-2"
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
+      <MessageHoverToolbar
+        messageId={message.id}
+        canEdit={message.authorId === currentUserId}
+        onEdit={() => setIsEditing(true)}
+      />
     </div>
   );
 }
