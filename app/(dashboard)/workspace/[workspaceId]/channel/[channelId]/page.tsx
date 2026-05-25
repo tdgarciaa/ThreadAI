@@ -10,9 +10,13 @@ import { useQuery } from "@tanstack/react-query";
 
 import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ThreadSideBar } from "./_components/thread/ThreadSideBar";
+import { ThreadProvider } from "@/providers/ThreadProviders";
+import { useThread } from "@/providers/ThreadProviders";
 
 const ChannelPageMain = () => {
   const { channelId } = useParams<{ channelId: string }>();
+  const { isThreadOpen } = useThread();
   const { data, error, isLoading } = useQuery(
     orpc.channel.get.queryOptions({
       input: {
@@ -49,8 +53,22 @@ const ChannelPageMain = () => {
           />
         </div>
       </div>
+
+      {isThreadOpen && (
+        <ThreadSideBar
+          user={data?.currentUser as KindeUser<Record<string, unknown>>}
+        />
+      )}
     </div>
   );
 };
 
-export default ChannelPageMain;
+const ThisIsTheChannelPage = () => {
+  return (
+    <ThreadProvider>
+      <ChannelPageMain />
+    </ThreadProvider>
+  );
+};
+
+export default ThisIsTheChannelPage;

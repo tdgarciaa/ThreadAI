@@ -25,6 +25,7 @@ import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
 
 import type { InfiniteData } from "@tanstack/react-query";
 import { getAvatar } from "@/lib/get-avatar";
+import { useParams } from "next/navigation";
 
 interface AppProps {
   channelId: string;
@@ -42,6 +43,7 @@ export function MessageInputForm({ channelId, user }: AppProps) {
   const queryClient = useQueryClient();
   const [editorKey, setEditorKey] = useState(0);
   const upload = useAttachmentUpload();
+  const { workspaceId } = useParams<{ workspaceId: string }>();
   const form = useForm<CreateMessageSchemaType>({
     resolver: zodResolver(createMessageSchema),
     defaultValues: {
@@ -66,7 +68,8 @@ export function MessageInputForm({ channelId, user }: AppProps) {
         const optimisticMessage: Message = {
           id: tempId,
           channelId: channelId,
-          workspaceId: "",
+          // workspaceId: "",
+          workspaceId: workspaceId,
           content: data.content,
           imageUrl: data.imageUrl ?? null,
           createdAt: new Date(),
@@ -76,6 +79,7 @@ export function MessageInputForm({ channelId, user }: AppProps) {
           authorEmail: user.email!,
           authorName: user.email ?? "Jhon Doe",
           createdById: "",
+          threadId: data.threadId ?? null,
         };
 
         queryClient.setQueryData<InfiniteMessages>(
