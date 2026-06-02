@@ -1,14 +1,17 @@
-import { Message } from "@/generated/prisma/client";
 import Image from "next/image";
 import { getAvatar } from "@/lib/get-avatar";
 import { SaveContent } from "@/components/rich-text-editor/SaveContent";
 import { MessageHoverToolbar } from "../toolBar";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { EditMessage } from "../toolBar/EditMesage";
-import { flattenError } from "zod";
+import type { MessageListItem } from "@/lib/types";
+import { MessageSquareIcon } from "lucide-react";
+import { useThread } from "@/providers/ThreadProviders";
+import { orpc } from "@/lib/orpc";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface iAppProps {
-  message: Message;
+  message: MessageListItem;
   currentUserId: string;
 }
 
@@ -32,6 +35,20 @@ function getValidImageSrc(src: string | null) {
 export function MessageItem({ message, currentUserId }: iAppProps) {
   const imageSrc = getValidImageSrc(message.imageUrl);
   const [isEditing, setIsEditing] = useState(false);
+  const { openThread } = useThread();
+  const queryClient = useQueryClient();
+
+  //preloads the thread data into the cacche before the user click the button
+  const prefetchThread = useCallback(() => {
+    const options = orpc.message.thread.list.queryOptions({
+      input: {
+        messageId: message.id,
+      },
+    });
+    queryClient
+      .prefetchQuery({ ...options, staleTime: 60_000 })
+      .catch(() => {});
+  }, [message.id, queryClient]);
 
   return (
     <div className="flex space-x-3 relative p-2 rounded-lg group hover:bg-muted/50">
@@ -68,7 +85,7 @@ export function MessageItem({ message, currentUserId }: iAppProps) {
         ) : (
           <>
             <SaveContent
-              className="text-sm break-words prose dark:prose-invert max-w-none mark:text-primary"
+              className="text-sm wrap-break-words prose dark:prose-invert max-w-none mark:text-primary"
               content={message.content}
             />
 
@@ -79,9 +96,26 @@ export function MessageItem({ message, currentUserId }: iAppProps) {
                   alt="Image"
                   width={512}
                   height={512}
-                  className="rounded-md borber border-border max-h-[320px] w-auto gap-2"
+                  className="rounded-md borber border-border max-h-80 w-auto gap-2"
                 />
               </div>
+            )}
+            {message.repliesCount > 0 && (
+              <button
+                type="button"
+                className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border cursor-pointer"
+                onClick={() => openThread(message.id)}
+                onMouseOver={prefetchThread}
+              >
+                <MessageSquareIcon className="size-3.5" />
+                <span className="">
+                  {message.repliesCount}
+                  {message.repliesCount === 1 ? "reply" : "replies"}
+                </span>
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  View Thread
+                </span>
+              </button>
             )}
           </>
         )}

@@ -34,11 +34,20 @@ export function ThreadReply({ message }: ThreadReplyProps) {
         </p> */}
         <SaveContent
           className="text-sm wrap-break-word prose dark:prose-invert max-w-none"
-          content={JSON.parse(message.content)}
+          content={message.content}
         />
       </div>
-      {/** Thread reply form*/}
-      <div></div>
+      {message.imageUrl && (
+        <div className="mt-2">
+          <Image
+            src={message.imageUrl}
+            alt="message attachment"
+            width={512}
+            height={512}
+            className="rounded-md max-h-[320px] w-auto object-contain"
+          />
+        </div>
+      )}
     </div>
   );
 }
