@@ -14,13 +14,19 @@ import { Controller, useForm } from "react-hook-form";
 import { useParams } from "next/navigation";
 import { useAttachmentUpload } from "@/hooks/use-attachment-upload";
 import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  InfiniteData,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { orpc } from "@/lib/orpc";
 import { toast } from "sonner";
 import { Message } from "@/generated/prisma/browser";
 
 import { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
 import { getAvatar } from "@/lib/get-avatar";
+import { MessageListItem } from "@/lib/types";
+import { thead } from "motion/react-m";
 
 interface ThreadReplyProps {
   threadId: string;
@@ -56,6 +62,13 @@ export function ThreadReplyForm({ threadId, user }: ThreadReplyProps) {
           },
         });
 
+        type MessagePage = {
+          items: Array<MessageListItem>;
+          nextCursor?: string;
+        };
+
+        type infiniteMessages = InfiniteData<MessagePage>;
+
         await queryClient.cancelQueries({ queryKey: listOptions.queryKey });
 
         const previousData = await queryClient.getQueryData(
@@ -85,6 +98,31 @@ export function ThreadReplyForm({ threadId, user }: ThreadReplyProps) {
             messages: [...old.messages, optimistic],
           };
         });
+
+        {
+          /* Optimistically updates the replies count in the main section**/
+        }
+
+        queryClient.setQueryData<infiniteMessages>(
+          ["message.list", channelId],
+          (old) => {
+            if (!old) return old;
+
+            const pages = old.pages.map((page) => ({
+              ...page,
+              items: page.items.map((m) =>
+                m.id === threadId
+                  ? { ...m, repliesCount: m.repliesCount + 1 }
+                  : m,
+              ),
+            }));
+
+            return {
+              ...old,
+              pages,
+            };
+          },
+        );
         return {
           listOptions,
           previousData,
@@ -137,6 +175,7 @@ export function ThreadReplyForm({ threadId, user }: ThreadReplyProps) {
                 onChange={field.onChange}
                 onSubmit={() => onSubmit(form.getValues())}
                 upload={upload}
+                isSubmiting={createMessageMutation.isPending}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>

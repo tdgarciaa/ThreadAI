@@ -7,21 +7,22 @@ import { useParams } from "next/navigation";
 import { useLayoutEffect, useMemo, useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/general/EmptyState";
-import { ChevronDown, Loader2 } from "lucide-react";
-import { is } from "zod/v4/locales";
+import { ChevronDown } from "lucide-react";
 
 export function MessageList() {
   const { channelId } = useParams<{ channelId: string }>();
+
   const [hasInitialScrolled, setHasInitialScrolled] = useState(false);
   const scrolledRef = useRef<HTMLDivElement | null>(null);
-
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [isAtBottom, setIsAtBottom] = useState(false);
+
   const [newMessages, setNewMessages] = useState(false);
   const lastItemIdRef = useRef<string | undefined>(undefined);
 
   const pendingScrollHeightRef = useRef<number | null>(null);
   const pendingScrollTopRef = useRef<number | null>(null);
+
   const infiniteOptions = orpc.message.list.infiniteOptions({
     input: (pageParam: string | undefined) => ({
       channelId: channelId,
@@ -197,7 +198,7 @@ export function MessageList() {
 
     if (!el) return;
 
-    bottomRef.current?.scrollIntoView({ block: "end" });
+    bottomRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
 
     setNewMessages(false);
     setIsAtBottom(true);

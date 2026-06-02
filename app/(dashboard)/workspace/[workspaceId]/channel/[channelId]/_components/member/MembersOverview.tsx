@@ -64,7 +64,7 @@ export function MembersOverview() {
                   <Skeleton className="size-8 rounded-full" />
                   <div>
                     <Skeleton className="h-3 w-32" />
-                    <Skeleton className="h3 w-20" />
+                    <Skeleton className="h-3 w-20" />
                   </div>
                 </div>
               ))
