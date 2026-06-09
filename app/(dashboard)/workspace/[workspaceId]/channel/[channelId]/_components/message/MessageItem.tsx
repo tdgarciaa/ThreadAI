@@ -9,6 +9,7 @@ import { MessageSquareIcon } from "lucide-react";
 import { useThread } from "@/providers/ThreadProviders";
 import { orpc } from "@/lib/orpc";
 import { useQueryClient } from "@tanstack/react-query";
+import { ReactionsBar } from "../reaction/ReactionsBar";
 
 interface iAppProps {
   message: MessageListItem;
@@ -100,6 +101,11 @@ export function MessageItem({ message, currentUserId }: iAppProps) {
                 />
               </div>
             )}
+
+            {/* Reactions */}
+
+            <ReactionsBar />
+
             {message.repliesCount > 0 && (
               <button
                 type="button"
