@@ -8,13 +8,10 @@ datasource db {
 }
 
 model Channel {
-  id String @id @default(uuid())
-
-  name String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id          String    @id @default(uuid())
+  name        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   workspaceId String
   createdById String
   message     Message[]
@@ -23,28 +20,36 @@ model Channel {
 }
 
 model Message {
-  id String @id @default(uuid())
+  id              String            @id @default(uuid())
+  content         String
+  imageUrl        String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  workspaceId     String
+  createdById     String
+  authorId        String
+  authorEmail     String
+  authorName      String
+  authorAvatar    String
+  channelId       String?
+  threadId        String?
+  channel         Channel?          @relation(fields: [channelId], references: [id])
+  parentMessage   Message?          @relation("MessageThread", fields: [threadId], references: [id], onDelete: Cascade)
+  replies         Message[]         @relation("MessageThread")
+  MessageReaction MessageReaction[]
+}
 
-  content  String
-  imageUrl String?
+model MessageReaction {
+  id         String   @id @default(ulid())
+  emoji      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     String
+  userEmail  String
+  userName   String
+  userAvatar String
+  messageId  String?
+  message    Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-
-  workspaceId String
-  createdById String
-
-  authorId     String
-  authorEmail  String
-  authorName   String
-  authorAvatar String
-  channel      Channel? @relation(fields: [channelId], references: [id])
-  channelId    String?
-
-  // Thread relations
-  // Thread relations
-  parentMessage Message? @relation("MessageThread", fields: [threadId], references: [id], onDelete: Cascade)
-  threadId      String?
-
-  replies Message[] @relation("MessageThread")
+  @@unique([messageId, userId, emoji])
 }
