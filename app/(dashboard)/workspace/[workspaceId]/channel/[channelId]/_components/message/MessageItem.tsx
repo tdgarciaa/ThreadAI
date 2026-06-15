@@ -104,9 +104,13 @@ export function MessageItem({ message, currentUserId }: iAppProps) {
 
             {/* Reactions */}
 
-            <ReactionsBar />
+            <ReactionsBar
+              messageId={message.id}
+              reactions={message.reactions}
+              context={{ type: "list", channelId: message.channelId! }}
+            />
 
-            {message.repliesCount > 0 && (
+            {message.replyCount > 0 && (
               <button
                 type="button"
                 className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border cursor-pointer"
@@ -115,8 +119,8 @@ export function MessageItem({ message, currentUserId }: iAppProps) {
               >
                 <MessageSquareIcon className="size-3.5" />
                 <span className="">
-                  {message.repliesCount}
-                  {message.repliesCount === 1 ? "reply" : "replies"}
+                  {message.replyCount}
+                  {message.replyCount === 1 ? "reply" : "replies"}
                 </span>
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity">
                   View Thread

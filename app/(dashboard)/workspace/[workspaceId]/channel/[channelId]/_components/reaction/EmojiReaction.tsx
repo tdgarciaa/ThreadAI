@@ -14,13 +14,13 @@ import {
 import { useState } from "react";
 
 interface EmojiReactionProps {
-  onSelect?: (emoji: string) => void;
+  onSelect: (emoji: string) => void;
 }
 
 export function EmojiReaction({ onSelect }: EmojiReactionProps) {
   const [open, setOpen] = useState(false);
   const handleEmojiSelect = (emoji: string) => {
-    onSelect?.(emoji);
+    onSelect(emoji);
     setOpen(false);
   };
   return (

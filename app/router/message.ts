@@ -179,6 +179,12 @@ export const listMessages = base
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       include: {
         _count: { select: { replies: true } },
+        MessageReaction: {
+          select: {
+            emoji: true,
+            userId: true,
+          },
+        },
       },
     });
 
@@ -195,8 +201,15 @@ export const listMessages = base
       authorName: m.authorName,
       channelId: m.channelId,
       threadId: m.threadId,
-      repliesCount: m._count.replies,
+      replyCount: m._count.replies,
       workspaceId: m.workspaceId,
+      reactions: groupReactions(
+        m.MessageReaction.map((r) => ({
+          emoji: r.emoji,
+          userId: r.userId,
+        })),
+        context.user.id,
+      ),
     }));
     const nextCursor =
       messages.length === limit ? messages[messages.length - 1].id : undefined;
@@ -278,8 +291,8 @@ export const listThreadReply = base
   )
   .output(
     z.object({
-      parent: z.custom<Message>(),
-      messages: z.array(z.custom<Message>()),
+      parent: z.custom<MessageListItem>(),
+      messages: z.array(z.custom<MessageListItem>()),
     }),
   )
   .handler(async ({ input, context, errors }) => {
@@ -290,25 +303,92 @@ export const listThreadReply = base
           workspaceId: context.workspace.orgCode,
         },
       },
+      include: {
+        _count: {
+          select: {
+            replies: true,
+          },
+        },
+        MessageReaction: {
+          select: {
+            emoji: true,
+            userId: true,
+          },
+        },
+      },
     });
 
     if (!parentRow) {
       throw errors.NOT_FOUND;
     }
 
-    const replies = await prisma.message.findMany({
+    const messagesQuery = await prisma.message.findMany({
       where: {
         threadId: input.messageId,
       },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      include: {
+        _count: {
+          select: {
+            replies: true,
+          },
+        },
+        MessageReaction: {
+          select: {
+            emoji: true,
+            userId: true,
+          },
+        },
+      },
     });
 
-    const parent = {
-      ...parentRow,
+    const parent: MessageListItem = {
+      id: parentRow.id,
+      content: parentRow.content,
+      imageUrl: parentRow.imageUrl,
+      authorAvatar: parentRow.authorAvatar,
+      authorEmail: parentRow.authorEmail,
+      authorId: parentRow.authorId,
+      authorName: parentRow.authorName,
+      channelId: parentRow.channelId,
+      createdAt: parentRow.createdAt,
+      workspaceId: parentRow.workspaceId,
+      createdById: parentRow.createdById,
+      updatedAt: parentRow.updatedAt,
+      threadId: parentRow.threadId,
+      replyCount: parentRow._count.replies,
+
+      reactions: groupReactions(
+        parentRow.MessageReaction.map((r) => ({
+          emoji: r.emoji,
+          userId: r.userId,
+        })),
+        context.user.id,
+      ),
     };
 
-    const messages = replies.map((r) => ({
-      ...r,
+    const messages: MessageListItem[] = messagesQuery.map((m) => ({
+      id: m.id,
+      content: m.content,
+      imageUrl: m.imageUrl,
+      authorAvatar: m.authorAvatar,
+      authorEmail: m.authorEmail,
+      authorId: m.authorId,
+      authorName: m.authorName,
+      channelId: m.channelId,
+      createdAt: m.createdAt,
+      workspaceId: m.workspaceId,
+      createdById: m.createdById,
+      updatedAt: m.updatedAt,
+      threadId: m.threadId,
+      replyCount: m._count.replies,
+      reactions: groupReactions(
+        m.MessageReaction.map((r) => ({
+          emoji: r.emoji,
+          userId: r.userId,
+        })),
+        context.user.id,
+      ),
     }));
 
     return {

@@ -10,22 +10,18 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createMessageSchema } from "@/schemas/message";
 import { MessageComposer } from "./MessageComposer";
-import {
-  QueryClient,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { orpc } from "@/lib/orpc";
 import { CreateMessageSchemaType } from "@/schemas/message";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useAttachmentUpload } from "@/hooks/use-attachment-upload";
-import type { Message } from "@/generated/prisma/browser";
 import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
 
 import type { InfiniteData } from "@tanstack/react-query";
 import { getAvatar } from "@/lib/get-avatar";
 import { useParams } from "next/navigation";
+import type { MessageListItem } from "@/lib/types";
 
 interface AppProps {
   channelId: string;
@@ -33,7 +29,7 @@ interface AppProps {
 }
 
 type MessagePage = {
-  items: Message[];
+  items: MessageListItem[];
   nextCursor?: string;
 };
 
@@ -65,10 +61,9 @@ export function MessageInputForm({ channelId, user }: AppProps) {
 
         const tempId = `optimistic-${crypto.randomUUID()}`;
 
-        const optimisticMessage: Message = {
+        const optimisticMessage: MessageListItem = {
           id: tempId,
           channelId: channelId,
-          // workspaceId: "",
           workspaceId: workspaceId,
           content: data.content,
           imageUrl: data.imageUrl ?? null,
@@ -78,8 +73,10 @@ export function MessageInputForm({ channelId, user }: AppProps) {
           authorAvatar: getAvatar(user.picture, user.email!),
           authorEmail: user.email!,
           authorName: user.email ?? "Jhon Doe",
-          createdById: "",
+          createdById: user.id,
           threadId: data.threadId ?? null,
+          replyCount: 0,
+          reactions: [],
         };
 
         queryClient.setQueryData<InfiniteMessages>(
@@ -132,6 +129,8 @@ export function MessageInputForm({ channelId, user }: AppProps) {
                 m.id === context.tempId
                   ? {
                       ...data,
+                      replyCount: 0,
+                      reactions: [],
                     }
                   : m,
               ),
@@ -142,7 +141,8 @@ export function MessageInputForm({ channelId, user }: AppProps) {
         );
 
         form.reset({ channelId, content: "" });
-        (upload.clear, setEditorKey((k) => k + 1));
+        upload.clear();
+        setEditorKey((k) => k + 1);
         return toast.success("Message created succesfully");
       },
 

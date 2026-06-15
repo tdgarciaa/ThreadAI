@@ -21,12 +21,10 @@ import {
 } from "@tanstack/react-query";
 import { orpc } from "@/lib/orpc";
 import { toast } from "sonner";
-import { Message } from "@/generated/prisma/browser";
 
 import { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
 import { getAvatar } from "@/lib/get-avatar";
 import { MessageListItem } from "@/lib/types";
-import { thead } from "motion/react-m";
 
 interface ThreadReplyProps {
   threadId: string;
@@ -67,7 +65,12 @@ export function ThreadReplyForm({ threadId, user }: ThreadReplyProps) {
           nextCursor?: string;
         };
 
-        type infiniteMessages = InfiniteData<MessagePage>;
+        type InfiniteMessages = InfiniteData<MessagePage>;
+
+        type ThreadMessages = {
+          parent: MessageListItem;
+          messages: MessageListItem[];
+        };
 
         await queryClient.cancelQueries({ queryKey: listOptions.queryKey });
 
@@ -75,8 +78,8 @@ export function ThreadReplyForm({ threadId, user }: ThreadReplyProps) {
           listOptions.queryKey,
         );
 
-        const optimistic: Message = {
-          id: `optimistic-${crypto.randomUUID}`,
+        const optimistic: MessageListItem = {
+          id: `optimistic-${crypto.randomUUID()}`,
           workspaceId: workspaceId,
           content: data.content,
           createdAt: new Date(),
@@ -89,21 +92,26 @@ export function ThreadReplyForm({ threadId, user }: ThreadReplyProps) {
           threadId: data.threadId!,
           createdById: user.id,
           imageUrl: data.imageUrl ?? null,
+          replyCount: 0,
+          reactions: [],
         };
-        queryClient.setQueryData(listOptions.queryKey, (old) => {
-          if (!old) return;
+        queryClient.setQueryData<ThreadMessages>(
+          listOptions.queryKey,
+          (old) => {
+            if (!old) return old;
 
-          return {
-            ...old,
-            messages: [...old.messages, optimistic],
-          };
-        });
+            return {
+              ...old,
+              messages: [...old.messages, optimistic],
+            };
+          },
+        );
 
         {
           /* Optimistically updates the replies count in the main section**/
         }
 
-        queryClient.setQueryData<infiniteMessages>(
+        queryClient.setQueryData<InfiniteMessages>(
           ["message.list", channelId],
           (old) => {
             if (!old) return old;
@@ -111,9 +119,7 @@ export function ThreadReplyForm({ threadId, user }: ThreadReplyProps) {
             const pages = old.pages.map((page) => ({
               ...page,
               items: page.items.map((m) =>
-                m.id === threadId
-                  ? { ...m, repliesCount: m.repliesCount + 1 }
-                  : m,
+                m.id === threadId ? { ...m, replyCount: m.replyCount + 1 } : m,
               ),
             }));
 
@@ -135,7 +141,7 @@ export function ThreadReplyForm({ threadId, user }: ThreadReplyProps) {
         });
 
         form.reset({ channelId, content: "", threadId });
-        upload.clear;
+        upload.clear();
         setEditorKey((k) => k + 1);
         return toast.success("Message created succesfully");
       },
