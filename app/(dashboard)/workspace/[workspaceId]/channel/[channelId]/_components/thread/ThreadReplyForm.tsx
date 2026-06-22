@@ -22,7 +22,7 @@ import {
 import { orpc } from "@/lib/orpc";
 import { toast } from "sonner";
 
-import { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
+import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 import { getAvatar } from "@/lib/get-avatar";
 import { MessageListItem } from "@/lib/types";
 

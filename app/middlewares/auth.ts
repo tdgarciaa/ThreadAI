@@ -1,4 +1,4 @@
-import { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
+import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 import { base } from "./base";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";

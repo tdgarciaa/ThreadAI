@@ -7,10 +7,11 @@ import { useThread } from "@/providers/ThreadProviders";
 import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/lib/orpc";
 import { SaveContent } from "@/components/rich-text-editor/SaveContent";
-import { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
+import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 import { ThreadSidebarSkeleton } from "./ThreadSideBarSkeleton";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { SummarizeThread } from "./SummarizeThread";
 
 interface ThreadSideBarProps {
   user: KindeUser<Record<string, unknown>>;
@@ -135,6 +136,7 @@ export function ThreadSideBar({ user }: ThreadSideBarProps) {
           <span>Thread</span>
         </div>
         <div className="flex items-center gap-2">
+          <SummarizeThread messageId={selectedThreadId!} />
           <Button variant={"outline"} size="icon" onClick={() => closeThread()}>
             <X className="size-4" />
           </Button>

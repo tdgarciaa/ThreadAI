@@ -1,4 +1,4 @@
-import { KindeOrganization } from "@kinde-oss/kinde-auth-nextjs";
+import type { KindeOrganization } from "@kinde-oss/kinde-auth-nextjs/types";
 import { base } from "./base";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 

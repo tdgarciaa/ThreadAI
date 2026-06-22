@@ -16,7 +16,7 @@ import { CreateMessageSchemaType } from "@/schemas/message";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useAttachmentUpload } from "@/hooks/use-attachment-upload";
-import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
+import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 
 import type { InfiniteData } from "@tanstack/react-query";
 import { getAvatar } from "@/lib/get-avatar";

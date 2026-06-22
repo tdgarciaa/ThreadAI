@@ -8,10 +8,10 @@ import z from "zod";
 import prisma from "@/lib/db";
 import type { Channel } from "@/generated/prisma/client";
 import { init, Organizations } from "@kinde/management-api-js";
-import { KindeOrganization } from "@kinde-oss/kinde-auth-nextjs";
+import type { KindeOrganization } from "@kinde-oss/kinde-auth-nextjs/types";
 import type { organization_user } from "@kinde/management-api-js";
 import { readSecurityhMiddleweare } from "../middlewares/arcjet/read";
-import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
+import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 
 export const createChannel = base
   .use(requiredAuthMiddleeare)

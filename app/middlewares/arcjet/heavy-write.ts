@@ -1,6 +1,6 @@
 import arcjet, { shield, detectBot, slidingWindow } from "@/lib/arcjet";
 import { base } from "../base";
-import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
+import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 
 const buildStandardAj = () =>
   arcjet.withRule(

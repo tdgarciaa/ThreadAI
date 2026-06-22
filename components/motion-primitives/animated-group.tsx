@@ -100,13 +100,14 @@ const addDefaultVariants = (variants: Variants) => ({
   visible: { ...defaultItemVariants.visible, ...variants.visible },
 });
 
+const MotionComponent = motion.div;
+const MotionChild = motion.div;
+
 function AnimatedGroup({
   children,
   className,
   variants,
   preset,
-  as = 'div',
-  asChild = 'div',
 }: AnimatedGroupProps) {
   const selectedVariants = {
     item: addDefaultVariants(preset ? presetVariants[preset] : {}),
@@ -114,15 +115,6 @@ function AnimatedGroup({
   };
   const containerVariants = variants?.container || selectedVariants.container;
   const itemVariants = variants?.item || selectedVariants.item;
-
-  const MotionComponent = React.useMemo(
-    () => motion.create(as as keyof JSX.IntrinsicElements),
-    [as]
-  );
-  const MotionChild = React.useMemo(
-    () => motion.create(asChild as keyof JSX.IntrinsicElements),
-    [asChild]
-  );
 
   return (
     <MotionComponent

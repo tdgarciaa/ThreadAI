@@ -8,7 +8,7 @@ import { useParams } from "next/navigation";
 import { orpc } from "@/lib/orpc";
 import { useQuery } from "@tanstack/react-query";
 
-import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs";
+import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThreadSideBar } from "./_components/thread/ThreadSideBar";
 import { ThreadProvider } from "@/providers/ThreadProviders";

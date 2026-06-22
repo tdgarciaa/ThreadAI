@@ -12,8 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AvatarImage, Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CreditCardIcon, LogOutIcon, UserIcon } from "lucide-react";
-import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs";
-import { PortalLink } from "@kinde-oss/kinde-auth-nextjs/components";
+import { LogoutLink, PortalLink } from "@kinde-oss/kinde-auth-nextjs/components";
 import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { orpc } from "@/lib/orpc";
 import { getAvatar } from "@/lib/get-avatar";

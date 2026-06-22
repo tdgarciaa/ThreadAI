@@ -12,7 +12,6 @@ import {
   Users,
 } from "@kinde/management-api-js";
 import { getAvatar } from "@/lib/get-avatar";
-import { use } from "react";
 import { readSecurityhMiddleweare } from "../middlewares/arcjet/read";
 
 export const inviteMember = base

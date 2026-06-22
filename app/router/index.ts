@@ -8,6 +8,7 @@ import {
 } from "./message";
 import { createWorkspace, listWorkspace } from "./workspace";
 import { inviteMember, listMembers } from "./member";
+import { generateThreadSummary } from "./ai";
 export const router = {
   workspace: {
     list: listWorkspace,
@@ -31,6 +32,17 @@ export const router = {
     },
     thread: {
       list: listThreadReply,
+    },
+  },
+
+  ai: {
+    // compose: {
+    //   generate: {},
+    // },
+    thread: {
+      summary: {
+        generate: generateThreadSummary,
+      },
     },
   },
 };
