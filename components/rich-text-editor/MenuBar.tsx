@@ -19,6 +19,8 @@ import {
 
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
+import { ComposeAssistant } from "./ComposeAssistant";
+import { MarkdownToJson } from "@/lib/markdownToJson";
 
 interface MenuBarProps {
   editor: Editor | null;
@@ -37,6 +39,7 @@ export function MenuBar({ editor }: MenuBarProps) {
           isOrderedList: false,
           canUndo: false,
           canRedo: false,
+          currentContent: null,
         };
       }
 
@@ -49,6 +52,7 @@ export function MenuBar({ editor }: MenuBarProps) {
         isOrderedList: editor.isActive("orderedList"),
         canUndo: editor.can().undo(),
         canRedo: editor.can().redo(),
+        currentContent: editor.getJSON(),
       };
     },
   });
@@ -56,6 +60,15 @@ export function MenuBar({ editor }: MenuBarProps) {
   if (!editor || !editorState) {
     return null;
   }
+
+  const handleAcceptCompose = (markdown: string) => {
+    try {
+      const json = MarkdownToJson(markdown);
+      editor.commands.setContent(json);
+    } catch {
+      return;
+    }
+  };
 
   return (
     <div className="border border-input border-t-0 border-x-0 rounded-t-lg p-2 bg-card flex flex-wrap">
@@ -211,6 +224,14 @@ export function MenuBar({ editor }: MenuBarProps) {
             </TooltipTrigger>
             <TooltipContent>Redo</TooltipContent>
           </Tooltip>
+        </div>
+        {/* Separator **/}
+        <div className="w-px h-6 bg-border mx-2"></div>
+        <div className="flex flex-wrap gap-1">
+          <ComposeAssistant
+            content={JSON.stringify(editorState.currentContent)}
+            onAccept={handleAcceptCompose}
+          />
         </div>
       </TooltipProvider>
     </div>
