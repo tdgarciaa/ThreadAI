@@ -10,6 +10,7 @@ import { eventIteratorToStream } from "@orpc/client";
 import { client } from "@/lib/orpc";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
+import { MessageResponse } from "@/components/ai-elements/message";
 
 interface SummarizeThreadProps {
   messageId: string;
@@ -88,7 +89,7 @@ export function SummarizeThread({ messageId }: SummarizeThreadProps) {
           <div className="flex items-center gap-2">
             <span
               className="relative inline-flex items-center justify-center rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 py-1.5
-            px-4"
+            px-4 gap-1.5"
             >
               <Sparkles className="size-3.5 text-white p-s" />
               <span className="text-sm font-medium">Ai summary (Preview)</span>
@@ -124,9 +125,9 @@ export function SummarizeThread({ messageId }: SummarizeThreadProps) {
               </Button>
             </div>
           ) : summaryText ? (
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">
+            <MessageResponse parseIncompleteMarkdown={status !== "ready"}>
               {summaryText}
-            </p>
+            </MessageResponse>
           ) : status === "submitted" || status === "streaming" ? (
             <div className="space-y-2">
               <Skeleton className="h-4 w-3/4" />
