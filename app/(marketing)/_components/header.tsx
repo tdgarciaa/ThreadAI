@@ -138,8 +138,13 @@ export const HeroHeader = () => {
                           size: "sm",
                           className: cn(isScrolled && "lg:hidden"),
                         })}
+                        authUrlParams={{
+                          is_create_org: "true",
+                          org_name: "My workspace",
+                          pricing_table_key: "organization_plans",
+                        }}
                       >
-                        Register
+                        Sign up
                       </RegisterLink>
                     </>
                   )}
@@ -151,6 +156,11 @@ export const HeroHeader = () => {
                       className={buttonVariants({
                         size: "sm",
                       })}
+                      authUrlParams={{
+                        is_create_org: "true",
+                        org_name: "My workspace",
+                        pricing_table_key: "organization_plans",
+                      }}
                     >
                       Get Started
                     </RegisterLink>
