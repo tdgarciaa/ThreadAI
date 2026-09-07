@@ -20,10 +20,24 @@ type Message = z.infer<typeof PresenceMessageSchema>;
 
 // Define your Server
 export class Chat extends Server {
+  static options: { hibernate: true };
+
   onConnect(connection: Connection) {
     console.log("Connected", connection.id, "to server", this.name);
+
+    //Set current presence to the new connected users
+    connection.send(JSON.stringify(this.getPresenceMessage()));
   }
 
+  onClose(connection: Connection) {
+    console.log(`User disconnected : ${connection.id}`);
+
+    this.updateUsers();
+  }
+
+  onError(connection: Connection) {
+    console.log(`connection error: ${connection.id}`);
+  }
   //Handles incoming request from other clients
   onMessage(connection: Connection, message: string) {
     try {
@@ -38,15 +52,19 @@ export class Chat extends Server {
           this.setConnectionState(connection, { user: presence.data.payload });
           //Broadcats upadated presence to all clients
           this.updateUsers();
+
+          return;
+        }
+        if (presence.data.type === "remove-user") {
+          this.setConnectionState(connection, null);
+
+          this.updateUsers();
+          return;
         }
       }
-    } catch {
-      console.log("ldmcvldlmc");
+    } catch (error) {
+      console.log("Error procesing. brodcast:" + error);
     }
-
-    // console.log("Message from", connection.id, ":", message);
-    // // Send the message to every other connection
-    // this.broadcast(message, [connection.id]);
   }
 
   updateUsers() {
