@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, Suspense } from "react";
 import { WorkspaceHeader } from "./_components/WorkspaceHeader";
 import { CreateNewChannel } from "./_components/CreateNewChannel";
 import {
@@ -21,7 +21,9 @@ async function ChannelListLayout({ children }: { children: ReactNode }) {
         <HydrateClient client={queryClient}>
           {/*Header */}
           <div className="flex items-center px-4 h-14 border-b border-border">
-            <WorkspaceHeader />
+            <Suspense fallback={null}>
+              <WorkspaceHeader />
+            </Suspense>
           </div>
           <div className="px-4  py-4">
             <CreateNewChannel />
@@ -34,7 +36,9 @@ async function ChannelListLayout({ children }: { children: ReactNode }) {
                 <ChevronDown className="size-4 transition-transform duration-200" />
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <ChannelList />
+                <Suspense fallback={null}>
+                  <ChannelList />
+                </Suspense>
               </CollapsibleContent>
             </Collapsible>
           </div>
@@ -46,7 +50,9 @@ async function ChannelListLayout({ children }: { children: ReactNode }) {
                 <ChevronUp className="size-4 transition-transform duration-200" />
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <WorkspaceMembersList />
+                <Suspense fallback={null}>
+                  <WorkspaceMembersList />
+                </Suspense>
               </CollapsibleContent>
             </Collapsible>
           </div>

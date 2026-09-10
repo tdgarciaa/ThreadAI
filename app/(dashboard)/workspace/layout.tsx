@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, Suspense } from "react";
 import { WorkSpaceList } from "./_components/WorkspaceList";
 import { CreateWorkspace } from "./_components/CreateWorkspace";
 import { UserNav } from "./_components/UserNav";
@@ -14,14 +14,18 @@ const WorkspaceLayout = async ({ children }: { children: ReactNode }) => {
     <div className="flex w-full h-screen">
       <div className="flex h-full w-20 flex-col items-center bg-secondary py-3 px-2 border-r border-border">
         <HydrateClient client={queryClient}>
-          <WorkSpaceList />
+          <Suspense fallback={null}>
+            <WorkSpaceList />
+          </Suspense>
         </HydrateClient>
         <div>
           <CreateWorkspace />
         </div>
         <div className="mt-auto">
           <HydrateClient client={queryClient}>
-            <UserNav />
+            <Suspense fallback={null}>
+              <UserNav />
+            </Suspense>
           </HydrateClient>
         </div>
       </div>
