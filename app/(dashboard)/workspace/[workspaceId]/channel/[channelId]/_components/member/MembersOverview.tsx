@@ -11,14 +11,39 @@ import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/lib/orpc";
 import { MemberItem } from "./MemberItem";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePresence } from "@/hooks/use-presence";
+import { useParams } from "next/navigation";
+import { User } from "@/schemas/realtime";
+import { useMemo } from "react";
 
 export function MembersOverview() {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const params = useParams();
   const { data, isLoading, error } = useQuery(
     orpc.workspace.member.list.queryOptions(),
   );
 
+  const workspaceId = params.workspaceId;
+  const { data: worksapceData } = useQuery(orpc.workspace.list.queryOptions());
+  const currentUser = worksapceData?.user
+    ? ({
+        id: worksapceData.user.id,
+        full_name: worksapceData.user.given_name,
+        email: worksapceData.user.email,
+        picture: worksapceData.user.picture,
+      } satisfies User)
+    : null;
+
+  const { onlineUsers } = usePresence({
+    room: `workspace-${workspaceId}`,
+    currentUser: currentUser,
+  });
+
+  const onlineUsersIds = useMemo(
+    () => new Set(onlineUsers.map((u) => u.id)),
+    [onlineUsers],
+  );
   if (error) {
     return <h1>Error:{error.message}</h1>;
   }
@@ -32,6 +57,7 @@ export function MembersOverview() {
         return name?.includes(query) || email?.includes(query);
       })
     : members;
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -73,7 +99,13 @@ export function MembersOverview() {
                 No members found
               </p>
             ) : (
-              fileteredMembers.map((m) => <MemberItem member={m} key={m.id} />)
+              fileteredMembers.map((m) => (
+                <MemberItem
+                  member={m}
+                  key={m.id}
+                  isOnline={m.id ? onlineUsersIds.has(m.id) : false}
+                />
+              ))
             )}
           </div>
         </div>
