@@ -3,7 +3,11 @@
 //Wrangles i needed to run and generate types of cloudfare workersÇ/durables objects
 //Partykits need wrangler toolsate to manage the local code.
 
-import { PresenceMessageSchema, UserSchema } from "@/schemas/realtime";
+import {
+  ChannelEventSchema,
+  PresenceMessageSchema,
+  UserSchema,
+} from "@/schemas/realtime";
 import { Connection, routePartykitRequest, Server } from "partyserver";
 import { z } from "zod";
 
@@ -61,6 +65,13 @@ export class Chat extends Server {
           this.updateUsers();
           return;
         }
+      }
+      const channelEvent = ChannelEventSchema.safeParse(parsed);
+
+      if (channelEvent.success) {
+        const payload = JSON.stringify(channelEvent.data);
+
+        this.broadcast(payload);
       }
     } catch (error) {
       console.log("Error procesing. brodcast:" + error);
