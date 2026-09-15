@@ -73,6 +73,29 @@ export const listMembers = base
         sort: "name_asc",
       });
       if (!data.organization_users) throw errors.NOT_FOUND();
+      if (process.env.NODE_ENV === "development") {
+        for (const member of data.organization_users) {
+          if (!member.id) continue;
+
+          try {
+            const roleData = await Organizations.getOrganizationUserRoles({
+              orgCode: context.workspace.orgCode,
+              userId: member.id,
+            });
+            console.log(
+              "Detalles de roles de Kinde:",
+              JSON.stringify({
+                memberId: member.id,
+                full_name: member.full_name,
+                listedRoles: member.roles,
+                roles: roleData.roles,
+              }, null, 2),
+            );
+          } catch (error) {
+            console.error("No se pudieron consultar los roles de Kinde:", member.id, error);
+          }
+        }
+      }
       return data.organization_users;
     } catch {
       throw errors.INTERNAL_SERVER_ERROR();

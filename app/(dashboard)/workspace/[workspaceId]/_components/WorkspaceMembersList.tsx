@@ -59,7 +59,7 @@ export function WorkspaceMembersList() {
                 {member.full_name?.charAt(0).toLocaleUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <span
+            <div
               className={cn(
                 "absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-background bg-violet-500",
 
@@ -67,7 +67,7 @@ export function WorkspaceMembersList() {
                   ? "bg-green-500"
                   : "bg-gray-400",
               )}
-            />
+            ></div>
           </div>
 
           <div className="min-w-0 flex-1">

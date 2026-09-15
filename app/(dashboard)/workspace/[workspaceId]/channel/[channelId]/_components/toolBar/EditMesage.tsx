@@ -27,6 +27,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useChannelRealTime } from "@/providers/ChannelRealtimeProvider";
 
 interface EditMessageProps {
   message: Message;
@@ -36,6 +37,8 @@ interface EditMessageProps {
 
 export function EditMessage({ message, onCancel, onSave }: EditMessageProps) {
   const queryClient = useQueryClient();
+
+  const { send } = useChannelRealTime();
   const form = useForm({
     resolver: zodResolver(updateMessageSchema),
     defaultValues: {
@@ -68,6 +71,10 @@ export function EditMessage({ message, onCancel, onSave }: EditMessageProps) {
           },
         );
         toast.success("Message Updated succesfully");
+        send({
+          type: "message:updated",
+          payload: { message: updated.message },
+        });
         onSave();
       },
     }),
