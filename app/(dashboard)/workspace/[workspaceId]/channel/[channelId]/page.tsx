@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ThreadSideBar } from "./_components/thread/ThreadSideBar";
 import { ThreadProvider } from "@/providers/ThreadProviders";
 import { useThread } from "@/providers/ThreadProviders";
+import { ChannelRealtimeProvider } from "@/providers/ChannelRealtimeProvider";
 
 const ChannelPageMain = () => {
   const { channelId } = useParams<{ channelId: string }>();
@@ -29,37 +30,39 @@ const ChannelPageMain = () => {
     return <p> Error</p>;
   }
   return (
-    <div className="flex h-screen w-full">
-      <div className="flex flex-col flex-1 min-w-0 text-lg font-semibold">
-        {isLoading ? (
-          <div className="flex items-center justify-between h-14 px-4 border-b ">
-            <Skeleton className="h-6 w-40" />
-            <div className="flex items-center space-x-2">
-              <Skeleton className="h-8 w-28" />
-              <Skeleton className="h-8 w-20" />
-              <Skeleton className="h-8 w-8" />
+    <ChannelRealtimeProvider channelId={channelId}>
+      <div className="flex h-screen w-full">
+        <div className="flex flex-col flex-1 min-w-0 text-lg font-semibold">
+          {isLoading ? (
+            <div className="flex items-center justify-between h-14 px-4 border-b ">
+              <Skeleton className="h-6 w-40" />
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-8 w-28" />
+                <Skeleton className="h-8 w-20" />
+                <Skeleton className="h-8 w-8" />
+              </div>
             </div>
+          ) : (
+            <ChannelHeader channelName={data?.channelName} />
+          )}
+          <div className="flex-1 overflow-hidden">
+            <MessageList />
           </div>
-        ) : (
-          <ChannelHeader channelName={data?.channelName} />
-        )}
-        <div className="flex-1 overflow-hidden">
-          <MessageList />
+          <div className="border-t bg-background p-4">
+            <MessageInputForm
+              channelId={channelId}
+              user={data?.currentUser as KindeUser<Record<string, unknown>>}
+            />
+          </div>
         </div>
-        <div className="border-t bg-background p-4">
-          <MessageInputForm
-            channelId={channelId}
+
+        {isThreadOpen && (
+          <ThreadSideBar
             user={data?.currentUser as KindeUser<Record<string, unknown>>}
           />
-        </div>
+        )}
       </div>
-
-      {isThreadOpen && (
-        <ThreadSideBar
-          user={data?.currentUser as KindeUser<Record<string, unknown>>}
-        />
-      )}
-    </div>
+    </ChannelRealtimeProvider>
   );
 };
 

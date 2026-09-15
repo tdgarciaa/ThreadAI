@@ -23,6 +23,9 @@ import { getAvatar } from "@/lib/get-avatar";
 import { useParams } from "next/navigation";
 import type { MessageListItem } from "@/lib/types";
 
+import { useChannelRealTime } from "@/providers/ChannelRealtimeProvider";
+import { da } from "zod/v4/locales";
+
 interface AppProps {
   channelId: string;
   user: KindeUser<Record<string, unknown>>;
@@ -39,6 +42,9 @@ export function MessageInputForm({ channelId, user }: AppProps) {
   const queryClient = useQueryClient();
   const [editorKey, setEditorKey] = useState(0);
   const upload = useAttachmentUpload();
+
+  const { send } = useChannelRealTime();
+
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const form = useForm<CreateMessageSchemaType>({
     resolver: zodResolver(createMessageSchema),
@@ -143,6 +149,11 @@ export function MessageInputForm({ channelId, user }: AppProps) {
         form.reset({ channelId, content: "" });
         upload.clear();
         setEditorKey((k) => k + 1);
+
+        send({
+          type: "message:created",
+          payload: { message: { ...data, reactions: [], replyCount: 0 } },
+        });
         return toast.success("Message created succesfully");
       },
 

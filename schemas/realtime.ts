@@ -28,24 +28,34 @@ export const PresenceMessageSchema = z.union([
 export type PresenceMessage = z.infer<typeof PresenceMessageSchema>;
 
 //Minimal message shape for realtime events
+
 export const RealtimeMessageSchema = z.object({
   id: z.string(),
   content: z.string().optional().nullable(),
-  imageUrl: z.url().optional().nullable(),
-  createdAt: z.union([z.string(), z.date()]),
+  imageUrl: z.string().nullable().optional(),
+  createdAt: z.coerce.date(),
   authorEmail: z.string().optional().nullable(),
   authorName: z.string().optional().nullable(),
+  authorId: z.string().optional(),
+  authorAvatar: z.string().nullable().optional(),
   channelId: z.string().nullable(),
+  workspaceId: z.string().optional(),
   threadId: z.string().optional().nullable(),
 
-  reactions: z.array(groupReactionsSchema).optional(),
-  replyCount: z.number().optional(),
+  reactions: z.array(groupReactionsSchema).default([]),
+  replyCount: z.number().default(0),
 });
+
+export type RealtimeMessage = z.infer<typeof RealtimeMessageSchema>;
 // CHannel-level events
 
 export const ChannelEventSchema = z.union([
   z.object({
     type: z.literal("message:created"),
+    payload: z.object({ message: RealtimeMessageSchema }),
+  }),
+  z.object({
+    type: z.literal("message:updated"),
     payload: z.object({ message: RealtimeMessageSchema }),
   }),
   z.object({
