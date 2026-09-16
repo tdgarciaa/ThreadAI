@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { MessageListItem } from "@/lib/types";
+import { useChannelRealTime } from "@/providers/ChannelRealtimeProvider";
 
 type ThreadContext = { type: "thread"; threadId: string };
 type ListContext = { type: "list"; channelId: string };
@@ -33,6 +34,8 @@ export function ReactionsBar({
 }: ReactionBarProps) {
   const { channelId } = useParams<{ channelId: string }>();
   const queryClient = useQueryClient();
+
+  const { send } = useChannelRealTime();
 
   const toggleMutation = useMutation(
     orpc.message.reaction.toggle.mutationOptions({
@@ -125,7 +128,11 @@ export function ReactionsBar({
           listKey,
         };
       },
-      onSuccess: () => {
+      onSuccess: (data) => {
+        send({
+          type: "reaction:updated",
+          payload: data,
+        });
         return toast.success("emoji added");
       },
       onError: (_err, _vars, ctx) => {
