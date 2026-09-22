@@ -12,6 +12,10 @@ import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { MessageListItem } from "@/lib/types";
 import { useChannelRealTime } from "@/providers/ChannelRealtimeProvider";
+import {
+  useOptionalThreadRealtime,
+  useThreadRealtime,
+} from "@/providers/ThreadRealtimeProvider";
 
 type ThreadContext = { type: "thread"; threadId: string };
 type ListContext = { type: "list"; channelId: string };
@@ -37,6 +41,7 @@ export function ReactionsBar({
 
   const { send } = useChannelRealTime();
 
+  const threadRealtime = useOptionalThreadRealtime();
   const toggleMutation = useMutation(
     orpc.message.reaction.toggle.mutationOptions({
       //Creates optimistic update
@@ -133,6 +138,17 @@ export function ReactionsBar({
           type: "reaction:updated",
           payload: data,
         });
+        if (context && context.type === "thread" && threadRealtime) {
+          const threadId = context.threadId;
+
+          threadRealtime.send({
+            type: "thread:reaction:updated",
+            payload: {
+              ...data,
+              threadId,
+            },
+          });
+        }
         return toast.success("emoji added");
       },
       onError: (_err, _vars, ctx) => {

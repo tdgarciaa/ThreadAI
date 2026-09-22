@@ -12,6 +12,7 @@ import { ThreadSidebarSkeleton } from "./ThreadSideBarSkeleton";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { SummarizeThread } from "./SummarizeThread";
+import { ThreadRealtimeProvider } from "@/providers/ThreadRealtimeProvider";
 
 interface ThreadSideBarProps {
   user: KindeUser<Record<string, unknown>>;
@@ -128,94 +129,100 @@ export function ThreadSideBar({ user }: ThreadSideBarProps) {
     return <ThreadSidebarSkeleton />;
   }
   return (
-    <div className="w-120 border-l flex flex-col h-full">
-      {/** Header */}
-      <div className="border-b h-14 px-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="size-4" />
-          <span>Thread</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <SummarizeThread messageId={selectedThreadId!} />
-          <Button variant={"outline"} size="icon" onClick={() => closeThread()}>
-            <X className="size-4" />
-          </Button>
-        </div>
-      </div>
-      {/** Main */}
-      <div className="flex-1 overflow-y-auto relative">
-        <div
-          className="p-4 border-b bg-muted/20"
-          ref={scrolledRef}
-          onScroll={handleScroll}
-        >
-          {data && (
-            <>
-              <div className="flex space-x-3">
-                <Image
-                  src={data.parent.authorAvatar}
-                  alt="Author image"
-                  width={32}
-                  height={32}
-                  className="size-8 rounded-full"
-                />
-                <div className="flex-1 space-y-1 min-w-0">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium text-sm">
-                      {data.parent.authorName}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Intl.DateTimeFormat("en-Us", {
-                        hour: "numeric",
-                        minute: "numeric",
-                        hour12: true,
-                        month: "short",
-                        day: "numeric",
-                      }).format(data.parent.createdAt)}
-                    </span>
-                  </div>
-                  <SaveContent
-                    className="text-sm wrap-break-word prose dark:prose-invert max-w-none"
-                    content={data.parent.content}
-                  />
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-        {/*  Scroll to bottom*/}
-        {!isAtBottom && (
-          <Button
-            type="button"
-            size="sm"
-            className="absolute bottom-4 right-5 z-20 size-10 rounded-full hover:shadow-xñ transition-all duration-200"
-            onClick={scrollToBottom}
-          >
-            <ChevronDown className="size-4" />
-          </Button>
-        )}
-        {/**Thread replies */}
-        <div className="p-2">
-          <p className="text-xs text-muted-foreground mb-3 px-2">
-            {data?.messages.length} replies
-          </p>
-          <div className="space-y-1">
-            {data?.messages.map((reply) => (
-              <ThreadReply
-                key={reply.id}
-                message={reply}
-                selectedThreadId={selectedThreadId!}
-              />
-            ))}
+    <ThreadRealtimeProvider threadId={selectedThreadId!}>
+      <div className="w-120 border-l flex flex-col h-full">
+        {/** Header */}
+        <div className="border-b h-14 px-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="size-4" />
+            <span>Thread</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <SummarizeThread messageId={selectedThreadId!} />
+            <Button
+              variant={"outline"}
+              size="icon"
+              onClick={() => closeThread()}
+            >
+              <X className="size-4" />
+            </Button>
           </div>
         </div>
-        <div className="" ref={bottomRef}></div>
-      </div>
+        {/** Main */}
+        <div className="flex-1 overflow-y-auto relative">
+          <div
+            className="p-4 border-b bg-muted/20"
+            ref={scrolledRef}
+            onScroll={handleScroll}
+          >
+            {data && (
+              <>
+                <div className="flex space-x-3">
+                  <Image
+                    src={data.parent.authorAvatar}
+                    alt="Author image"
+                    width={32}
+                    height={32}
+                    className="size-8 rounded-full"
+                  />
+                  <div className="flex-1 space-y-1 min-w-0">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium text-sm">
+                        {data.parent.authorName}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Intl.DateTimeFormat("en-Us", {
+                          hour: "numeric",
+                          minute: "numeric",
+                          hour12: true,
+                          month: "short",
+                          day: "numeric",
+                        }).format(data.parent.createdAt)}
+                      </span>
+                    </div>
+                    <SaveContent
+                      className="text-sm wrap-break-word prose dark:prose-invert max-w-none"
+                      content={data.parent.content}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          {/*  Scroll to bottom*/}
+          {!isAtBottom && (
+            <Button
+              type="button"
+              size="sm"
+              className="absolute bottom-4 right-5 z-20 size-10 rounded-full hover:shadow-xñ transition-all duration-200"
+              onClick={scrollToBottom}
+            >
+              <ChevronDown className="size-4" />
+            </Button>
+          )}
+          {/**Thread replies */}
+          <div className="p-2">
+            <p className="text-xs text-muted-foreground mb-3 px-2">
+              {data?.messages.length} replies
+            </p>
+            <div className="space-y-1">
+              {data?.messages.map((reply) => (
+                <ThreadReply
+                  key={reply.id}
+                  message={reply}
+                  selectedThreadId={selectedThreadId!}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="" ref={bottomRef}></div>
+        </div>
 
-      {/** Thread reply form */}
-      <div className="border-t p-4">
-        <ThreadReplyForm user={user} threadId={selectedThreadId!} />
+        {/** Thread reply form */}
+        <div className="border-t p-4">
+          <ThreadReplyForm user={user} threadId={selectedThreadId!} />
+        </div>
       </div>
-    </div>
+    </ThreadRealtimeProvider>
   );
 }

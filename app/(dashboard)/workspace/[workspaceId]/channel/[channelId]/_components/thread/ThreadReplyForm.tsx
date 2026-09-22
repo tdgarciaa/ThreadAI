@@ -26,6 +26,9 @@ import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 import { getAvatar } from "@/lib/get-avatar";
 import { MessageListItem } from "@/lib/types";
 import { useChannelRealTime } from "@/providers/ChannelRealtimeProvider";
+import { useThreadRealtime } from "@/providers/ThreadRealtimeProvider";
+import { data } from "motion/react-m";
+import { da } from "zod/v4/locales";
 
 interface ThreadReplyProps {
   threadId: string;
@@ -38,6 +41,8 @@ export function ThreadReplyForm({ threadId, user }: ThreadReplyProps) {
   const [editorKey, setEditorKey] = useState(0);
   const queryClient = useQueryClient();
   const { send } = useChannelRealTime();
+
+  const { send: sendThread } = useThreadRealtime();
   const { workspaceId } = useParams<{ workspaceId: string }>();
 
   const form = useForm<CreateMessageSchemaType>({
@@ -137,7 +142,7 @@ export function ThreadReplyForm({ threadId, user }: ThreadReplyProps) {
         };
       },
 
-      onSuccess: (_data, _variables, context) => {
+      onSuccess: (data, _variables, context) => {
         queryClient.invalidateQueries({
           queryKey: context.listOptions.queryKey,
         });
@@ -145,6 +150,11 @@ export function ThreadReplyForm({ threadId, user }: ThreadReplyProps) {
         form.reset({ channelId, content: "", threadId });
         upload.clear();
         setEditorKey((k) => k + 1);
+
+        sendThread({
+          type: "thread:reply:created",
+          payload: { reply: data },
+        });
 
         send({
           type: "message:replies:increment",
